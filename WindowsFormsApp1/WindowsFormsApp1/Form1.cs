@@ -145,8 +145,8 @@ namespace WindowsFormsApp1
             int x = 8;
             for (int i = 0; i < nombres.Length; i++)
             {
-                g.Controls.Add(Lbl(nombres[i], x, 25, 22));
-                fijos[i] = Txt(valDefecto, x + 22, 22, 48);
+                g.Controls.Add(Lbl(nombres[i], x, 25, 26));   // 26 px para que "m1/m2/m3" no se corten
+                fijos[i] = Txt(valDefecto, x + 26, 22, 46);
                 g.Controls.Add(fijos[i]);
                 x += 80;
             }
