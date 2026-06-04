@@ -14,11 +14,11 @@ namespace WindowsFormsApp1
         private TextBox txtOctave;
         private Button btnExaminar;
         private readonly TextBox[] txtK = new TextBox[4];
-        private readonly TextBox[] txtC = new TextBox[4];
+        private readonly TextBox[] txtB = new TextBox[4];
         private readonly TextBox[] txtM = new TextBox[3];
-        private ComboBox cmbVarK, cmbVarC, cmbVarM;
+        private ComboBox cmbVarK, cmbVarB, cmbVarM;
         private TextBox txtKMin, txtKMax, txtKPaso;
-        private TextBox txtCMin, txtCMax, txtCPaso;
+        private TextBox txtBMin, txtBMax, txtBPaso;
         private TextBox txtMMin, txtMMax, txtMPaso;
         private TextBox txtElementos, txtFactor;
         private Button btnCombos, btnSimular;
@@ -32,6 +32,7 @@ namespace WindowsFormsApp1
         private RadioButton rbPaso, rbImpulso;
         private Label lblTiempo;
         private Timer timerAnim;
+        private Chart chartVivo;
 
         private readonly List<ResultadoIteracion> _resultados = new List<ResultadoIteracion>();
         private List<SistemaParametros> _combinaciones = new List<SistemaParametros>();
@@ -71,8 +72,8 @@ namespace WindowsFormsApp1
             pnlConfig.Controls.Add(GrupoOctave());
             pnlConfig.Controls.Add(GrupoConstante("Constante k (rigidez) [N/m]", txtK, out cmbVarK,
                 out txtKMin, out txtKMax, out txtKPaso, new[] { "k1", "k2", "k3", "k4" }, "100"));
-            pnlConfig.Controls.Add(GrupoConstante("Constante c (amortiguamiento) [N·s/m]", txtC, out cmbVarC,
-                out txtCMin, out txtCMax, out txtCPaso, new[] { "c1", "c2", "c3", "c4" }, "2"));
+            pnlConfig.Controls.Add(GrupoConstante("Constante b (amortiguamiento) [N·s/m]", txtB, out cmbVarB,
+                out txtBMin, out txtBMax, out txtBPaso, new[] { "b1", "b2", "b3", "b4" }, "2"));
             pnlConfig.Controls.Add(GrupoConstante("Masa m [kg]", txtM, out cmbVarM,
                 out txtMMin, out txtMMax, out txtMPaso, new[] { "m1", "m2", "m3" }, "1"));
             pnlConfig.Controls.Add(GrupoSimulacion());
@@ -97,7 +98,7 @@ namespace WindowsFormsApp1
 
             // Valores por defecto de los rangos.
             cmbVarK.SelectedIndex = 0; txtKMin.Text = "100"; txtKMax.Text = "200"; txtKPaso.Text = "100";
-            cmbVarC.SelectedIndex = 0; txtCMin.Text = "1"; txtCMax.Text = "2"; txtCPaso.Text = "1";
+            cmbVarB.SelectedIndex = 0; txtBMin.Text = "1"; txtBMax.Text = "2"; txtBPaso.Text = "1";
             cmbVarM.SelectedIndex = 0; txtMMin.Text = "1"; txtMMax.Text = "2"; txtMPaso.Text = "1";
         }
 
@@ -223,19 +224,56 @@ namespace WindowsFormsApp1
 
             btnPlay.Click += (s, e) => Reproducir();
             btnPause.Click += (s, e) => timerAnim.Stop();
-            btnReset.Click += (s, e) => { timerAnim.Stop(); _frame = 0; anim.Reiniciar(); lblTiempo.Text = "t = 0.000 s"; };
+            btnReset.Click += (s, e) => { timerAnim.Stop(); _frame = 0; anim.Reiniciar(); ReiniciarChartVivo(); lblTiempo.Text = "t = 0.000 s"; };
             rbPaso.CheckedChanged += (s, e) => CambiarFuenteAnim();
             rbImpulso.CheckedChanged += (s, e) => CambiarFuenteAnim();
 
             pnlTop.Controls.AddRange(new Control[] { btnPlay, btnPause, btnReset, rbPaso, rbImpulso, lblTiempo });
 
             anim = new ControlAnimacion { Dock = DockStyle.Fill };
+            chartVivo = CrearChartVivo();   // gráfica en vivo (a la derecha)
 
-            tab.Controls.Add(anim);   // Fill primero
+            // Orden de docking: Fill primero, luego el borde derecho, y el Top al final
+            // para que la barra de controles abarque todo el ancho.
+            tab.Controls.Add(anim);
+            tab.Controls.Add(chartVivo);
             tab.Controls.Add(pnlTop);
 
             timerAnim = new Timer { Interval = 40 };
             timerAnim.Tick += TimerAnim_Tick;
+        }
+
+        /// <summary>Gráfica que se dibuja punto a punto al ritmo de la animación.</summary>
+        private Chart CrearChartVivo()
+        {
+            var ch = new Chart { Dock = DockStyle.Right, Width = 500, BackColor = Color.White };
+            var area = new ChartArea("viva");
+            area.AxisX.Title = "t [s]";
+            area.AxisY.Title = "y [m]";
+            area.AxisX.Minimum = 0;                 // origen fijo; el máximo crece solo
+            area.AxisX.MajorGrid.LineColor = Color.Gainsboro;
+            area.AxisY.MajorGrid.LineColor = Color.Gainsboro;
+            ch.ChartAreas.Add(area);
+            ch.Titles.Add(new Title("Respuesta en tiempo real (sincronizada con la animación)",
+                Docking.Top, new Font("Segoe UI", 9, FontStyle.Bold), Color.Black));
+            ch.Legends.Add(new Legend { Docking = Docking.Bottom, Font = new Font("Segoe UI", 8) });
+            ch.Series.Add(new Series("y1") { ChartType = SeriesChartType.Line, BorderWidth = 2, Color = Color.RoyalBlue });
+            ch.Series.Add(new Series("y2") { ChartType = SeriesChartType.Line, BorderWidth = 2, Color = Color.SeaGreen });
+            ch.Series.Add(new Series("y3") { ChartType = SeriesChartType.Line, BorderWidth = 2, Color = Color.DarkOrange });
+            return ch;
+        }
+
+        /// <summary>Borra los puntos dibujados y deja los ejes en modo automático.</summary>
+        private void ReiniciarChartVivo()
+        {
+            if (chartVivo == null) return;
+            foreach (var s in chartVivo.Series) s.Points.Clear();
+            var area = chartVivo.ChartAreas[0];
+            area.AxisX.Minimum = 0;
+            area.AxisX.Maximum = double.NaN;        // auto
+            area.AxisY.Minimum = double.NaN;        // auto
+            area.AxisY.Maximum = double.NaN;        // auto
+            chartVivo.Invalidate();
         }
 
         // ============================================================
@@ -257,9 +295,9 @@ namespace WindowsFormsApp1
                 if (kv <= 0) { error = $"k{i + 1} debe ser positivo."; return false; }
                 p.K[i] = kv;
 
-                if (!TryNum(txtC[i].Text, out double cv)) { error = $"c{i + 1} no es un número válido."; return false; }
-                if (cv < 0) { error = $"c{i + 1} no puede ser negativo."; return false; }
-                p.C[i] = cv;
+                if (!TryNum(txtB[i].Text, out double bv)) { error = $"b{i + 1} no es un número válido."; return false; }
+                if (bv < 0) { error = $"b{i + 1} no puede ser negativo."; return false; }
+                p.B[i] = bv;
             }
             for (int i = 0; i < 3; i++)
             {
@@ -291,15 +329,15 @@ namespace WindowsFormsApp1
 
             // k positiva, c >= 0, m positiva.
             if (!LeerRango("k", txtKMin, txtKMax, txtKPaso, false, out var vk, out string e2)) { if (mostrar) Aviso(e2); return false; }
-            if (!LeerRango("c", txtCMin, txtCMax, txtCPaso, true, out var vc, out string e3)) { if (mostrar) Aviso(e3); return false; }
+            if (!LeerRango("b", txtBMin, txtBMax, txtBPaso, true, out var vb, out string e3)) { if (mostrar) Aviso(e3); return false; }
             if (!LeerRango("m", txtMMin, txtMMax, txtMPaso, false, out var vm, out string e4)) { if (mostrar) Aviso(e4); return false; }
 
             _combinaciones = GeneradorCombinaciones.Generar(baseP,
-                cmbVarK.SelectedIndex, vk, cmbVarC.SelectedIndex, vc, cmbVarM.SelectedIndex, vm);
+                cmbVarK.SelectedIndex, vk, cmbVarB.SelectedIndex, vb, cmbVarM.SelectedIndex, vm);
 
             int n = _combinaciones.Count;
             if (mostrar)
-                lblInfo.Text = $"n_k={vk.Length}, n_c={vc.Length}, n_m={vm.Length}\n" +
+                lblInfo.Text = $"n_k={vk.Length}, n_b={vb.Length}, n_m={vm.Length}\n" +
                                $"Combinaciones: N = {n}\n" +
                                $"Simulaciones a ejecutar: {2 * n}  (paso + impulso)";
             return true;
@@ -458,6 +496,7 @@ namespace WindowsFormsApp1
             _animFuente = rbImpulso.Checked ? r.Impulso : r.Paso;
             _frame = 0;
             anim.Reiniciar();
+            ReiniciarChartVivo();
             lblTiempo.Text = "t = 0.000 s";
         }
 
@@ -465,7 +504,8 @@ namespace WindowsFormsApp1
         {
             if (_animFuente == null) CambiarFuenteAnim();
             if (_animFuente == null) { Aviso("Ejecute primero una simulación."); return; }
-            if (_frame >= _animFuente.T.Length) _frame = 0;
+            // Si terminó, reinicia el recorrido y la gráfica para volver a dibujarla.
+            if (_frame >= _animFuente.T.Length) { _frame = 0; anim.Reiniciar(); ReiniciarChartVivo(); }
             timerAnim.Start();
         }
 
@@ -479,7 +519,15 @@ namespace WindowsFormsApp1
                 _animFuente.Y1[_frame] * factor,
                 _animFuente.Y2[_frame] * factor,
                 _animFuente.Y3[_frame] * factor);
-            lblTiempo.Text = "t = " + _animFuente.T[_frame].ToString("0.000", CultureInfo.InvariantCulture) + " s";
+
+            // Dibuja el punto actual en la gráfica viva y reajusta los ejes.
+            double t = _animFuente.T[_frame];
+            chartVivo.Series["y1"].Points.AddXY(t, _animFuente.Y1[_frame]);
+            chartVivo.Series["y2"].Points.AddXY(t, _animFuente.Y2[_frame]);
+            chartVivo.Series["y3"].Points.AddXY(t, _animFuente.Y3[_frame]);
+            try { chartVivo.ChartAreas[0].RecalculateAxesScale(); } catch { /* sin datos aún */ }
+
+            lblTiempo.Text = "t = " + t.ToString("0.000", CultureInfo.InvariantCulture) + " s";
             _frame++;
         }
 

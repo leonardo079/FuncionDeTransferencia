@@ -34,12 +34,12 @@ namespace WindowsFormsApp1
     }
 
     /// <summary>
-    /// Conjunto completo de parámetros del sistema (k1..k4, c1..c4, m1..m3) para una iteración.
+    /// Conjunto completo de parámetros del sistema (k1..k4, b1..b4, m1..m3) para una iteración.
     /// </summary>
     public class SistemaParametros
     {
         public double[] K { get; set; } = new double[4]; // k1, k2, k3, k4
-        public double[] C { get; set; } = new double[4]; // c1, c2, c3, c4
+        public double[] B { get; set; } = new double[4]; // b1, b2, b3, b4 (amortiguamiento)
         public double[] M { get; set; } = new double[3]; // m1, m2, m3
 
         public SistemaParametros Clonar()
@@ -47,7 +47,7 @@ namespace WindowsFormsApp1
             return new SistemaParametros
             {
                 K = (double[])K.Clone(),
-                C = (double[])C.Clone(),
+                B = (double[])B.Clone(),
                 M = (double[])M.Clone()
             };
         }
@@ -55,9 +55,9 @@ namespace WindowsFormsApp1
         public override string ToString()
         {
             string k = string.Join(", ", K.Select((v, i) => $"k{i + 1}={v:0.###}"));
-            string c = string.Join(", ", C.Select((v, i) => $"c{i + 1}={v:0.###}"));
+            string b = string.Join(", ", B.Select((v, i) => $"b{i + 1}={v:0.###}"));
             string m = string.Join(", ", M.Select((v, i) => $"m{i + 1}={v:0.###}"));
-            return $"{k} | {c} | {m}";
+            return $"{k} | {b} | {m}";
         }
     }
 

@@ -73,7 +73,7 @@ namespace WindowsFormsApp1
 
     /// <summary>
     /// Construye las funciones de transferencia G1, G2, G3 = Yi(s)/F(s) del sistema de 3 masas
-    /// con la fuerza aplicada sobre m3, mediante la regla de Cramer.
+    /// con la fuerza aplicada sobre m3 (mismo desarrollo del informe). bi = amortiguamiento.
     /// </summary>
     public static class FuncionesTransferencia
     {
@@ -81,25 +81,25 @@ namespace WindowsFormsApp1
             out string g1, out string g2, out string g3, out Polinomio denominador)
         {
             double k1 = p.K[0], k2 = p.K[1], k3 = p.K[2], k4 = p.K[3];
-            double c1 = p.C[0], c2 = p.C[1], c3 = p.C[2], c4 = p.C[3];
+            double b1 = p.B[0], b2 = p.B[1], b3 = p.B[2], b4 = p.B[3];
             double m1 = p.M[0], m2 = p.M[1], m3 = p.M[2];
 
-            // Elementos de la matriz de impedancia A(s) (Coef[i] -> s^i).
-            var A11 = new Polinomio(k1 + k2, c1 + c2, m1);
-            var A22 = new Polinomio(k2 + k3, c2 + c3, m2);
-            var A33 = new Polinomio(k3 + k4, c3 + c4, m3);
-            var A12 = new Polinomio(-k2, -c2);          // A12 = A21 = -(c2 s + k2)
-            var A23 = new Polinomio(-k3, -c3);          // A23 = A32 = -(c3 s + k3)
+            // Sustituciones a1..a5 del informe (Coef[i] -> s^i).
+            var A11 = new Polinomio(k1 + k2, b1 + b2, m1);  // a1
+            var A22 = new Polinomio(k2 + k3, b2 + b3, m2);  // a3
+            var A33 = new Polinomio(k3 + k4, b3 + b4, m3);  // a5
+            var A12 = new Polinomio(-k2, -b2);          // -a2 = -(b2 s + k2)
+            var A23 = new Polinomio(-k3, -b3);          // -a4 = -(b3 s + k3)
 
-            // Δ = A11*A22*A33 - A11*A23^2 - A12^2*A33
+            // Δ = A11*A22*A33 - A11*A23^2 - A12^2*A33 = a5(a1a3 - a2^2) - a1 a4^2
             var delta = A11 * A22 * A33 - A11 * (A23 * A23) - (A12 * A12) * A33;
 
             // Numeradores (fuerza en m3):
-            // G1 = (c2 s+k2)(c3 s+k3) / Δ = (A12*A23) / Δ
+            // G1 = (b2 s+k2)(b3 s+k3) / Δ = (A12*A23) / Δ = a2 a4 / Δ
             var num1 = A12 * A23;
-            // G2 = A11*(c3 s+k3) / Δ
-            var num2 = A11 * new Polinomio(k3, c3);
-            // G3 = (A11*A22 - A12^2) / Δ
+            // G2 = A11*(b3 s+k3) / Δ = a1 a4 / Δ
+            var num2 = A11 * new Polinomio(k3, b3);
+            // G3 = (A11*A22 - A12^2) / Δ = (a1 a3 - a2^2) / Δ
             var num3 = A11 * A22 - A12 * A12;
 
             denominador = delta;

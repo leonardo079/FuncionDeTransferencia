@@ -39,10 +39,10 @@ namespace WindowsFormsApp1
                 sb.Append("split_long_rows(0);");
                 sb.Append($"m1={F(p.M[0])};m2={F(p.M[1])};m3={F(p.M[2])};");
                 sb.Append($"k1={F(p.K[0])};k2={F(p.K[1])};k3={F(p.K[2])};k4={F(p.K[3])};");
-                sb.Append($"c1={F(p.C[0])};c2={F(p.C[1])};c3={F(p.C[2])};c4={F(p.C[3])};");
+                sb.Append($"b1={F(p.B[0])};b2={F(p.B[1])};b3={F(p.B[2])};b4={F(p.B[3])};");
                 sb.Append("M=diag([m1 m2 m3]);");
                 sb.Append("K=[k1+k2 -k2 0; -k2 k2+k3 -k3; 0 -k3 k3+k4];");
-                sb.Append("C=[c1+c2 -c2 0; -c2 c2+c3 -c3; 0 -c3 c3+c4];");
+                sb.Append("C=[b1+b2 -b2 0; -b2 b2+b3 -b3; 0 -b3 b3+b4];");
                 sb.Append("A=[zeros(3) eye(3); -M\\K -M\\C];");
                 sb.Append("B=[zeros(3,1); M\\[0;0;1]];"); // fuerza en m3
                 sb.Append("Cm=[eye(3) zeros(3)];");

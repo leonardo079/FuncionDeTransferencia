@@ -71,10 +71,10 @@ namespace WindowsFormsApp1
             int dx = cx + 38;   // x del amortiguador
 
             // Conectores: techo->m1, m1->m2, m2->m3, m3->piso.
-            DibujarConector(g, sx, dx, topY, y1, "k1", "c1");
-            DibujarConector(g, sx, dx, y1 + BloqueAlto, y2, "k2", "c2");
-            DibujarConector(g, sx, dx, y2 + BloqueAlto, y3, "k3", "c3");
-            DibujarConector(g, sx, dx, y3 + BloqueAlto, botY, "k4", "c4");
+            DibujarConector(g, sx, dx, topY, y1, "k1", "b1");
+            DibujarConector(g, sx, dx, y1 + BloqueAlto, y2, "k2", "b2");
+            DibujarConector(g, sx, dx, y2 + BloqueAlto, y3, "k3", "b3");
+            DibujarConector(g, sx, dx, y3 + BloqueAlto, botY, "k4", "b4");
 
             // Bloques de las masas.
             DibujarMasa(g, cx, y1, Color.FromArgb(120, 170, 220), "m1");
@@ -109,7 +109,7 @@ namespace WindowsFormsApp1
                 rect, Color.Black, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
         }
 
-        private void DibujarConector(Graphics g, int sx, int dx, int yTop, int yBot, string lblK, string lblC)
+        private void DibujarConector(Graphics g, int sx, int dx, int yTop, int yBot, string lblK, string lblB)
         {
             if (yBot < yTop + 6) yBot = yTop + 6; // evita inversión visual
             DibujarResorte(g, sx, yTop, yBot);
@@ -118,7 +118,7 @@ namespace WindowsFormsApp1
             using (var f = new Font("Segoe UI", 7.5f))
             {
                 g.DrawString(lblK, f, Brushes.DarkGreen, sx - 24, (yTop + yBot) / 2 - 7);
-                g.DrawString(lblC, f, Brushes.Firebrick, dx + 8, (yTop + yBot) / 2 - 7);
+                g.DrawString(lblB, f, Brushes.Firebrick, dx + 8, (yTop + yBot) / 2 - 7);
             }
         }
 

@@ -57,109 +57,101 @@ F→ │        m3        │ → y3(t)
 
 <table>
 <tr><th>Elemento</th><th>Conecta</th></tr>
-<tr><td>\(k_1, c_1\)</td><td>soporte superior ↔ \(m_1\)</td></tr>
-<tr><td>\(k_2, c_2\)</td><td>\(m_1\) ↔ \(m_2\)</td></tr>
-<tr><td>\(k_3, c_3\)</td><td>\(m_2\) ↔ \(m_3\)</td></tr>
-<tr><td>\(k_4, c_4\)</td><td>\(m_3\) ↔ soporte inferior</td></tr>
+<tr><td>\(k_1, b_1\)</td><td>soporte superior ↔ \(m_1\)</td></tr>
+<tr><td>\(k_2, b_2\)</td><td>\(m_1\) ↔ \(m_2\)</td></tr>
+<tr><td>\(k_3, b_3\)</td><td>\(m_2\) ↔ \(m_3\)</td></tr>
+<tr><td>\(k_4, b_4\)</td><td>\(m_3\) ↔ soporte inferior</td></tr>
 </table>
+
+<p class="nota">En adelante \(b_i\) denota el coeficiente de amortiguamiento del amortiguador \(i\).
+Esta misma notación (\(b_1,\dots,b_4\)) se usa en el código fuente del simulador.</p>
 
 <h2>2. Ecuaciones de movimiento (2.ª ley de Newton)</h2>
 <p>Aplicando \(\sum F = m\,\ddot{y}\) a cada masa, considerando que cada resorte ejerce una fuerza
 proporcional a la <em>deformación relativa</em> y cada amortiguador a la <em>velocidad relativa</em>:</p>
 
-$$m_1\ddot{y}_1 = -k_1 y_1 - c_1\dot{y}_1 - k_2(y_1-y_2) - c_2(\dot{y}_1-\dot{y}_2)$$
-$$m_2\ddot{y}_2 = -k_2(y_2-y_1) - c_2(\dot{y}_2-\dot{y}_1) - k_3(y_2-y_3) - c_3(\dot{y}_2-\dot{y}_3)$$
-$$m_3\ddot{y}_3 = -k_3(y_3-y_2) - c_3(\dot{y}_3-\dot{y}_2) - k_4 y_3 - c_4\dot{y}_3 + F(t)$$
+$$m_1\ddot{y}_1 = -k_1 y_1 - b_1\dot{y}_1 - k_2(y_1-y_2) - b_2(\dot{y}_1-\dot{y}_2)$$
+$$m_2\ddot{y}_2 = -k_2(y_2-y_1) - b_2(\dot{y}_2-\dot{y}_1) - k_3(y_2-y_3) - b_3(\dot{y}_2-\dot{y}_3)$$
+$$m_3\ddot{y}_3 = -k_3(y_3-y_2) - b_3(\dot{y}_3-\dot{y}_2) - k_4 y_3 - b_4\dot{y}_3 + F(t)$$
 
 <p>Reordenando (agrupando cada \(y_i\)):</p>
-$$m_1\ddot{y}_1 + (c_1+c_2)\dot{y}_1 + (k_1+k_2)y_1 - c_2\dot{y}_2 - k_2 y_2 = 0$$
-$$m_2\ddot{y}_2 + (c_2+c_3)\dot{y}_2 + (k_2+k_3)y_2 - c_2\dot{y}_1 - k_2 y_1 - c_3\dot{y}_3 - k_3 y_3 = 0$$
-$$m_3\ddot{y}_3 + (c_3+c_4)\dot{y}_3 + (k_3+k_4)y_3 - c_3\dot{y}_2 - k_3 y_2 = F(t)$$
+$$m_1\ddot{y}_1 + (b_1+b_2)\dot{y}_1 + (k_1+k_2)y_1 - b_2\dot{y}_2 - k_2 y_2 = 0$$
+$$m_2\ddot{y}_2 + (b_2+b_3)\dot{y}_2 + (k_2+k_3)y_2 - b_2\dot{y}_1 - k_2 y_1 - b_3\dot{y}_3 - k_3 y_3 = 0$$
+$$m_3\ddot{y}_3 + (b_3+b_4)\dot{y}_3 + (k_3+k_4)y_3 - b_3\dot{y}_2 - k_3 y_2 = F(t)$$
 
 <h2>3. Transformada de Laplace</h2>
 <p>Con condiciones iniciales nulas, \(\mathcal{L}\{\dot{y}\}=sY(s)\) y \(\mathcal{L}\{\ddot{y}\}=s^2Y(s)\):</p>
 
-$$\big[m_1 s^2 + (c_1+c_2)s + (k_1+k_2)\big]Y_1 - (c_2 s + k_2)Y_2 = 0$$
-$$-(c_2 s + k_2)Y_1 + \big[m_2 s^2 + (c_2+c_3)s + (k_2+k_3)\big]Y_2 - (c_3 s + k_3)Y_3 = 0$$
-$$-(c_3 s + k_3)Y_2 + \big[m_3 s^2 + (c_3+c_4)s + (k_3+k_4)\big]Y_3 = F(s)$$
+$$\big[m_1 s^2 + (b_1+b_2)s + (k_1+k_2)\big]Y_1 - (b_2 s + k_2)Y_2 = 0$$
+$$-(b_2 s + k_2)Y_1 + \big[m_2 s^2 + (b_2+b_3)s + (k_2+k_3)\big]Y_2 - (b_3 s + k_3)Y_3 = 0$$
+$$-(b_3 s + k_3)Y_2 + \big[m_3 s^2 + (b_3+b_4)s + (k_3+k_4)\big]Y_3 = F(s)$$
 
 <p>Para despejar con mayor comodidad se introducen las <strong>sustituciones</strong> \(a_1,\dots,a_5\),
-donde cada \(a_i\) reemplaza una expresión en \(s\) (las diagonales y los acoples de la matriz):</p>
-$$a_1 = m_1 s^2 + (c_1+c_2)s + (k_1+k_2) \qquad \text{(diagonal de } m_1)$$
-$$a_2 = c_2 s + k_2 \qquad \text{(acople } m_1\!-\!m_2)$$
-$$a_3 = m_2 s^2 + (c_2+c_3)s + (k_2+k_3) \qquad \text{(diagonal de } m_2)$$
-$$a_4 = c_3 s + k_3 \qquad \text{(acople } m_2\!-\!m_3)$$
-$$a_5 = m_3 s^2 + (c_3+c_4)s + (k_3+k_4) \qquad \text{(diagonal de } m_3)$$
+donde cada \(a_i\) reemplaza una expresión en \(s\) (las diagonales y los acoples del sistema):</p>
+$$a_1 = m_1 s^2 + (b_1+b_2)s + k_1+k_2 \qquad \text{(diagonal de } m_1)$$
+$$a_2 = b_2 s + k_2 \qquad \text{(acople } m_1\!-\!m_2)$$
+$$a_3 = m_2 s^2 + (b_2+b_3)s + k_2+k_3 \qquad \text{(diagonal de } m_2)$$
+$$a_4 = b_3 s + k_3 \qquad \text{(acople } m_2\!-\!m_3)$$
+$$a_5 = m_3 s^2 + (b_3+b_4)s + k_3+k_4 \qquad \text{(diagonal de } m_3)$$
 
-<p>En forma matricial \(\mathbf{A}(s)\,\mathbf{Y}(s) = \mathbf{F}(s)\) queda compactamente:</p>
+<p>Con estas sustituciones las tres ecuaciones se escriben de forma compacta como:</p>
+$$Y_1 a_1 = Y_2 a_2 \tag{I}$$
+$$Y_2 a_3 = Y_1 a_2 + Y_3 a_4 \tag{II}$$
+$$Y_3 a_5 = Y_2 a_4 + F(s) \tag{III}$$
 
-$$
-\underbrace{\begin{bmatrix}
-a_1 & -a_2 & 0 \\
--a_2 & a_3 & -a_4 \\
-0 & -a_4 & a_5
-\end{bmatrix}}_{\mathbf{A}(s)}
-\begin{bmatrix} Y_1 \\ Y_2 \\ Y_3 \end{bmatrix}
-=
-\begin{bmatrix} 0 \\ 0 \\ F(s) \end{bmatrix}
-$$
+<h2>4. Funciones de transferencia (método de sustitución)</h2>
+<p>El sistema se resuelve por <strong>eliminación sucesiva</strong>: se despeja \(Y_1\) en función de
+\(Y_2\), se sustituye para obtener \(Y_2\) en función de \(Y_3\), y finalmente se despeja \(Y_3\) en
+función de \(F(s)\). Luego se devuelven las sustituciones para hallar \(Y_2\) y \(Y_1\).</p>
 
-<h2>4. Funciones de transferencia (regla de Cramer)</h2>
+<h3>Paso 1. Despejar \(Y_1\)</h3>
+<p>De la ecuación (I):</p>
+$$Y_1 = \frac{a_2}{a_1}\,Y_2$$
 
-<h3>4.1 Determinante del sistema \(\Delta(s)\)</h3>
-<p>Es el denominador común de las tres funciones de transferencia. Se calcula por cofactores
-expandiendo a lo largo de la primera fila:</p>
-$$\Delta = \det\mathbf{A} =
-a_1\begin{vmatrix} a_3 & -a_4 \\ -a_4 & a_5 \end{vmatrix}
--(-a_2)\begin{vmatrix} -a_2 & -a_4 \\ 0 & a_5 \end{vmatrix}
-+0$$
-$$\Delta = a_1\,(a_3 a_5 - a_4^{\,2}) + a_2\,(-a_2 a_5)
-= a_1 a_3 a_5 - a_1 a_4^{\,2} - a_2^{\,2} a_5$$
-$$\boxed{\;\Delta(s) = a_5\,(a_1 a_3 - a_2^{\,2}) - a_1 a_4^{\,2}\;}$$
+<h3>Paso 2. Sustituir en la ecuación de \(m_2\)</h3>
+<p>Reemplazando \(Y_1\) en la ecuación (II), \(\;Y_2 a_3 = Y_1 a_2 + Y_3 a_4\):</p>
+$$Y_2 a_3 = \left(\frac{a_2}{a_1}\,Y_2\right)a_2 + Y_3 a_4
+= \frac{a_2^{\,2}}{a_1}\,Y_2 + Y_3 a_4$$
+<p>Pasando los términos con \(Y_2\) a la izquierda y factorizando:</p>
+$$Y_2\left(a_3 - \frac{a_2^{\,2}}{a_1}\right) = Y_3 a_4
+\quad\Longrightarrow\quad
+Y_2 = \frac{a_4\,Y_3}{\,a_3 - \dfrac{a_2^{\,2}}{a_1}\,}$$
+<p>Multiplicando numerador y denominador por \(a_1\):</p>
+$$\boxed{\,Y_2 = \frac{a_1 a_4\,Y_3}{a_1 a_3 - a_2^{\,2}}\,}$$
 
-<h3>4.2 Despeje de cada desplazamiento</h3>
-<p>Como la fuerza actúa solo en \(m_3\), el vector independiente es \(\mathbf{F}=[0,0,F]^{\!\top}\).
-Por la regla de Cramer, \(Y_i = \dfrac{\det\mathbf{A}_i}{\Delta}\), donde \(\mathbf{A}_i\) es \(\mathbf{A}\)
-con su columna \(i\)-ésima reemplazada por \(\mathbf{F}\).</p>
+<h3>Paso 3. Sustituir en la ecuación de \(m_3\)</h3>
+<p>Partiendo de la ecuación (III), \(\;Y_3 a_5 = Y_2 a_4 + F(s)\), y sustituyendo \(Y_2\):</p>
+$$Y_3 a_5 = a_4\left(\frac{a_1 a_4\,Y_3}{a_1 a_3 - a_2^{\,2}}\right) + F(s)
+= \frac{a_1 a_4^{\,2}\,Y_3}{a_1 a_3 - a_2^{\,2}} + F(s)$$
+<p>Multiplicando toda la ecuación por \((a_1 a_3 - a_2^{\,2})\):</p>
+$$Y_3 a_5 (a_1 a_3 - a_2^{\,2}) = a_1 a_4^{\,2}\,Y_3 + (a_1 a_3 - a_2^{\,2})\,F(s)$$
+<p>Agrupando los términos con \(Y_3\) y factorizando:</p>
+$$Y_3\Big[\,a_5(a_1 a_3 - a_2^{\,2}) - a_1 a_4^{\,2}\,\Big] = (a_1 a_3 - a_2^{\,2})\,F(s)$$
+<p>De donde se obtiene la primera función de transferencia:</p>
+$$\boxed{\,G_3(s) = \frac{Y_3(s)}{F(s)} = \frac{a_1 a_3 - a_2^{\,2}}{a_5(a_1 a_3 - a_2^{\,2}) - a_1 a_4^{\,2}}\,}$$
+<p>El denominador \(\;\Delta(s) = a_5(a_1 a_3 - a_2^{\,2}) - a_1 a_4^{\,2}\;\) es el
+<strong>denominador común</strong> (polinomio característico) de las tres funciones de transferencia.</p>
 
-<p><strong>\(Y_1\):</strong> se reemplaza la columna 1. Expandiendo por esa columna (solo el término
-\(F\) de la tercera fila sobrevive):</p>
-$$\det\mathbf{A}_1 =
-\begin{vmatrix} 0 & -a_2 & 0 \\ 0 & a_3 & -a_4 \\ F & -a_4 & a_5 \end{vmatrix}
-= F\,(+1)\begin{vmatrix} -a_2 & 0 \\ a_3 & -a_4 \end{vmatrix}
-= F\,(a_2 a_4)$$
-$$\Rightarrow\quad \frac{Y_1}{F} = \frac{a_2 a_4}{\Delta}$$
+<h3>Paso 4. Función de transferencia de \(m_2\)</h3>
+<p>Usando \(\;Y_2 = \dfrac{a_1 a_4\,Y_3}{a_1 a_3 - a_2^{\,2}}\;\) y sustituyendo \(Y_3/F\):</p>
+$$\frac{Y_2(s)}{F(s)} = \frac{a_1 a_4}{a_1 a_3 - a_2^{\,2}}\cdot\frac{a_1 a_3 - a_2^{\,2}}{\Delta}$$
+$$\boxed{\,G_2(s) = \frac{Y_2(s)}{F(s)} = \frac{a_1 a_4}{a_5(a_1 a_3 - a_2^{\,2}) - a_1 a_4^{\,2}}\,}$$
 
-<p><strong>\(Y_2\):</strong> se reemplaza la columna 2. Expandiendo por esa columna:</p>
-$$\det\mathbf{A}_2 =
-\begin{vmatrix} a_1 & 0 & 0 \\ -a_2 & 0 & -a_4 \\ 0 & F & a_5 \end{vmatrix}
-= F\,(-1)\begin{vmatrix} a_1 & 0 \\ -a_2 & -a_4 \end{vmatrix}
-= F\,(-1)(-a_1 a_4) = F\,(a_1 a_4)$$
-$$\Rightarrow\quad \frac{Y_2}{F} = \frac{a_1 a_4}{\Delta}$$
-
-<p><strong>\(Y_3\):</strong> se reemplaza la columna 3. Expandiendo por esa columna:</p>
-$$\det\mathbf{A}_3 =
-\begin{vmatrix} a_1 & -a_2 & 0 \\ -a_2 & a_3 & 0 \\ 0 & -a_4 & F \end{vmatrix}
-= F\,(+1)\begin{vmatrix} a_1 & -a_2 \\ -a_2 & a_3 \end{vmatrix}
-= F\,(a_1 a_3 - a_2^{\,2})$$
-$$\Rightarrow\quad \frac{Y_3}{F} = \frac{a_1 a_3 - a_2^{\,2}}{\Delta}$$
-
-<h3>4.3 Funciones de transferencia</h3>
-
-$$\boxed{\,G_1(s) = \frac{Y_1(s)}{F(s)} = \frac{a_2\,a_4}{a_5\,(a_1 a_3 - a_2^{\,2}) - a_1 a_4^{\,2}}\,}$$
-
-$$\boxed{\,G_2(s) = \frac{Y_2(s)}{F(s)} = \frac{a_1\,a_4}{a_5\,(a_1 a_3 - a_2^{\,2}) - a_1 a_4^{\,2}}\,}$$
-
-$$\boxed{\,G_3(s) = \frac{Y_3(s)}{F(s)} = \frac{a_1 a_3 - a_2^{\,2}}{a_5\,(a_1 a_3 - a_2^{\,2}) - a_1 a_4^{\,2}}\,}$$
+<h3>Paso 5. Función de transferencia de \(m_1\)</h3>
+<p>Partiendo de \(\;Y_1 = \dfrac{a_2}{a_1}\,Y_2\;\) y sustituyendo \(Y_2/F\):</p>
+$$\frac{Y_1(s)}{F(s)} = \frac{a_2}{a_1}\cdot\frac{a_1 a_4}{\Delta} = \frac{a_2 a_4}{\Delta}$$
+$$\boxed{\,G_1(s) = \frac{Y_1(s)}{F(s)} = \frac{a_2 a_4}{a_5(a_1 a_3 - a_2^{\,2}) - a_1 a_4^{\,2}}\,}$$
 
 <p>Al sustituir de vuelta cada \(a_i\) por su expresión en \(s\) se obtienen los polinomios completos.
 Por ejemplo, en el numerador de \(G_1\):
-\(a_2 a_4 = (c_2 s + k_2)(c_3 s + k_3)\).</p>
+\(a_2 a_4 = (b_2 s + k_2)(b_3 s + k_3)\).</p>
 
 <div class="nota">
-<strong>Verificación (estado estacionario).</strong> Para \(k_i=100\), \(c_i=2\), \(m=[1,2,1]\) y entrada
-escalón unitario, el teorema del valor final da \(y_i(\infty)=G_i(0)\):
-\(\Delta(0)=4\times10^{6}\), de donde \(G_1(0)=0.0025\), \(G_2(0)=0.005\), \(G_3(0)=0.0075\).
+<strong>Verificación (estado estacionario).</strong> Para \(k_i=100\), \(b_i=2\), \(m=[1,2,1]\) y entrada
+escalón unitario, el teorema del valor final da \(y_i(\infty)=G_i(0)\). En \(s=0\):
+\(a_1=200,\,a_2=100,\,a_3=200,\,a_4=100,\,a_5=200\), luego
+\(\Delta(0)=200(200\cdot200-100^2)-200\cdot100^2=4\times10^{6}\), de donde
+\(G_1(0)=0.0025\), \(G_2(0)=0.005\), \(G_3(0)=0.0075\).
 La simulación en Octave converge a \(y_3\to 7.5\times10^{-3}\), confirmando el modelo.
 </div>
 
@@ -178,7 +170,7 @@ $$A=\begin{bmatrix} 0 & I \\ -M^{-1}K & -M^{-1}C \end{bmatrix},\quad
 B=\begin{bmatrix} 0 \\ M^{-1}e_3 \end{bmatrix},\quad
 M=\mathrm{diag}(m_1,m_2,m_3)$$
 $$K=\begin{bmatrix} k_1+k_2 & -k_2 & 0\\ -k_2 & k_2+k_3 & -k_3\\ 0 & -k_3 & k_3+k_4\end{bmatrix},\quad
-C=\begin{bmatrix} c_1+c_2 & -c_2 & 0\\ -c_2 & c_2+c_3 & -c_3\\ 0 & -c_3 & c_3+c_4\end{bmatrix}$$
+C=\begin{bmatrix} b_1+b_2 & -b_2 & 0\\ -b_2 & b_2+b_3 & -b_3\\ 0 & -b_3 & b_3+b_4\end{bmatrix}$$
 
 <h2>6. Funcionalidades del simulador</h2>
 <ul>

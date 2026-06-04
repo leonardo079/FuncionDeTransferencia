@@ -27,7 +27,7 @@ El ejecutable queda en `WindowsFormsApp1\WindowsFormsApp1\bin\Debug\WindowsForms
 
 ## Uso
 1. En **«Ruta del CLI de Octave»** pegar la ruta de `octave-cli.exe` (o `octave-cli` si está en PATH).
-2. Fijar los valores de `k1..k4`, `c1..c4`, `m1..m3` y elegir **cuál** k, c y m se varían (mín/máx/paso).
+2. Fijar los valores de `k1..k4`, `b1..b4`, `m1..m3` y elegir **cuál** k, b y m se varían (mín/máx/paso).
 3. **Calcular combinaciones** → muestra N = n_k·n_c·n_m y el total de simulaciones (2N: paso + impulso).
 4. **Simular** → genera por iteración las gráficas de y1,y2,y3 al paso e impulso, métricas y tiempos.
 5. Pestaña **Animación** → reproduce la última iteración (paso o impulso), con pausa/reinicio y tiempo.
@@ -37,7 +37,7 @@ El ejecutable queda en `WindowsFormsApp1\WindowsFormsApp1\bin\Debug\WindowsForms
 |---|---|
 | `Modelos.cs` | Clases de datos (rangos, parámetros, respuestas, resultados). |
 | `GeneradorCombinaciones.cs` | Producto cartesiano de los rangos. |
-| `Polinomio.cs` | Construye G1, G2, G3 por Cramer para mostrarlas. |
+| `Polinomio.cs` | Construye G1, G2, G3 (numerador/denominador en s) para mostrarlas. |
 | `MotorOctave.cs` | Arma el modelo en espacio de estados y obtiene step/impulse en Octave. |
 | `ControlAnimacion.cs` | Dibujo y animación del sistema. |
 | `Form1.cs` | Interfaz, validaciones, orquestación. |
@@ -47,9 +47,11 @@ El ejecutable queda en `WindowsFormsApp1\WindowsFormsApp1\bin\Debug\WindowsForms
 e **Imprimir → Guardar como PDF**.
 
 ## Modelo
-Funciones de transferencia (fuerza en m3). Sustituciones para despejar por Cramer:
-`a1=m1s²+(c1+c2)s+(k1+k2)`, `a2=c2s+k2`, `a3=m2s²+(c2+c3)s+(k2+k3)`,
-`a4=c3s+k3`, `a5=m3s²+(c3+c4)s+(k3+k4)`, y denominador común
+Funciones de transferencia (fuerza en m3), obtenidas por **sustitución/eliminación** (desarrollo
+completo en `Informe/Informe.html`). `bᵢ` son los coeficientes de amortiguamiento (misma notación
+en el código). Sustituciones para simplificar el despeje:
+`a1=m1s²+(b1+b2)s+(k1+k2)`, `a2=b2s+k2`, `a3=m2s²+(b2+b3)s+(k2+k3)`,
+`a4=b3s+k3`, `a5=m3s²+(b3+b4)s+(k3+k4)`, y denominador común
 `Δ = a5(a1a3 − a2²) − a1a4²`:
 
 - `G1(s) = a2·a4 / Δ`
